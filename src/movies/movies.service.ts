@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Movie } from './movie.entity';
@@ -19,18 +19,37 @@ export class MoviesService {
     return this.moviesRepository.find();
   }
   
-  findOne(id: number): Promise<Movie | undefined> {
-    return this.moviesRepository.findOne({ where: { id } });
+  async findOne(id: number): Promise<Movie | undefined> {
+    if (isNaN(id)) {
+      throw new HttpException('Invalid ID', HttpStatus.BAD_REQUEST);
+    }
+    const movie = await this.moviesRepository.findOne({ where: { id } });
+    if (!movie) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    return movie;
   }
   
   async update(id: number, updateMovieData): Promise<Movie> {
+    if (isNaN(id)) {
+      throw new HttpException('Invalid ID', HttpStatus.BAD_REQUEST);
+    }
     const movie = await this.moviesRepository.findOne({ where: { id } });
+    if (!movie) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
     this.moviesRepository.merge(movie, updateMovieData);
     return this.moviesRepository.save(movie);
   }
   
   async remove(id: number): Promise<void> {
+    if (isNaN(id)) {
+      throw new HttpException('Invalid ID', HttpStatus.BAD_REQUEST);
+    }
     const movie = await this.moviesRepository.findOne({ where: { id } });
+    if (!movie) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
     await this.moviesRepository.remove(movie);
   }  
 }
