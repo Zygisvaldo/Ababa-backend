@@ -9,7 +9,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
-    await this.authService.register(createUserDto.username, createUserDto.password);
+    await this.authService.register(createUserDto);
     return { message: 'User registered successfully' };
   }
 
