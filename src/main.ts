@@ -7,6 +7,13 @@ async function bootstrap() {
   // app.use('*', (req, res, next) => {
   //   throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
   // });
+
+  app.enableCors({
+    origin: 'http://localhost:3001',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   await app.listen(3000);
 }
 bootstrap();
