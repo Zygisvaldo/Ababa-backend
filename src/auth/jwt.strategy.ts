@@ -3,9 +3,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
+import { Logger } from '@nestjs/common';
+
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  private readonly logger = new Logger(JwtStrategy.name);
+
   constructor(
     private authService: AuthService,
     private configService: ConfigService,
@@ -18,8 +22,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.authService.validateUser(payload.username, payload.password);
+    this.logger.log(`Payload received: ${JSON.stringify(payload)}`);
+  
+    const user = await this.authService.validateUser(payload.username);
     if (!user) {
+      this.logger.warn('Unauthorized access attempt');
       throw new UnauthorizedException();
     }
     return user;
